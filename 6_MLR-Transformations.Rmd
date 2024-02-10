@@ -1,0 +1,43 @@
+---
+title: "Regression_Class-Assign-3"
+author: "Stephanie N. Pham"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(gridExtra)
+
+#######################################################
+
+# Bring in the "tvmarketing.csv" data
+setwd("C:/Users/phams/Virginia Tech/SP Sandbox - Documents/Coursework/Regression/6_MLR-tests")
+data <- read.csv(file = "3_tvmarketing.csv")
+
+```
+
+
+Upload Sales vs. TV Budget scatterplot
+```{r 1}
+plot(data$Sales,data$TV, 
+     main="Scatterplot of Sales vs. TV Budget", 
+     xlab="Sales", 
+     ylab="TV Budget", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+```
+
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
