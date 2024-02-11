@@ -8,16 +8,16 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(dplyr)
 library(gridExtra)
+library(Rfit)
+library(MASS)
 
 #######################################################
 
 # Bring in the "tvmarketing.csv" data
-setwd("C:/Users/phams/Virginia Tech/SP Sandbox - Documents/Coursework/Regression/6_MLR-tests")
-data <- read.csv(file = "3_tvmarketing.csv")
+data <- read.csv(file = "data/3_tvmarketing.csv")
 
 ```
 
@@ -36,8 +36,68 @@ plot(data$Sales,data$TV,
 
 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r 2, echo=FALSE}
+
+slr = lm(data$TV~data$Sales) 
+stud = rstudent(slr)
+slr_fit = fitted(slr)
+
+
+plot(slr_fit, stud,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Sales", 
+     ylab="Studentized Residuals",
+     ylim=(c(-4, 4))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+```
+```{r 3}
+#Q-Q Plot
+qqnorm(stud,pch = 16);abline(0,1, col="red")
+
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r 5}
+
+bc<-boxcox(slr)  #plots from -2 to 2 the box cox procedure
+lambda <- bc$x[which.max(bc$y)]
+lambda
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r 6}
+
+
+# Scatterplot
+plot(data$Sales,data$TV, 
+     main="Scatterplot of Sales vs. TV Budget", 
+     xlab="Sales", 
+     ylab="TV Budget", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Studentized residuals
+slr_bc = lm(powerTransform(y, lambda) ~ x)
+stud_bc = rstudent(slr_bc)
+slr_fit_bc = fitted(slr_bc)
+
+plot(slr_fit_bc, stud_bc,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Sales", 
+     ylab="Studentized Residuals",
+     ylim=(c(-4, 4))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+
+# Q-Q Plot
+qqnorm(stud_bc,pch = 16);abline(0,1, col="navy")
+
+
+```
