@@ -8,9 +8,73 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-# Pull in data "mileage.csv"
-setwd
+library(tidyverse)
+library(dplyr)
+library(gridExtra)
+library(Rfit)
+library(MASS)
 
+#######################################################
+
+# Bring in the "tvmarketing.csv" data
+setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
+mileage <- read.csv(file = "data/4_mileage.csv")
+```
+
+
+Fit the multiple linear regression relating gas miles y (miles per gallon) to engine displacement (x1) and the number of carburetor barrels (x2). What is the estimated intercept? Round to 2 decimal places.
+```{r 1}
+
+mileage_fit = lm(mileage ~ displacement + carburetor, data = mileage)
+summary(mileage_fit)
+```
+
+
+Fit the multiple linear regression relating gas miles y (miles per gallon) to engine displacement (x1) and the number of carburetor barrels (x2). What is the estimated partial slope for engine displacement? Round to 2 decimal places.
+```{r 2}
 
 ```
 
+
+Fit the multiple linear regression relating gas miles y (miles per gallon) to engine displacement () and the number of carburetor barrels (). What is the estimated partial slope for number of carburetor barrels? Round to 2 decimal places.
+```{r 3}
+
+```
+
+Construct a normal quantile plot of the studentized residuals. Upload your plot in the space below. Does there seem to be any problem with the normality assumption?
+```{r 4}
+
+```
+
+
+Construct a plot of the studentized residuals versus the predicted response. Upload the plot in the space below and comment on whether or not the assumptions that can be checked using this plot are met.
+```{r 5}
+
+```
+
+Based on your plot in question 5, which observation is considered a potential outlier in the y space? Answer this question by typing the observation number in the box below.
+```{r 6}
+
+```
+
+What is the cut-off value based on the rule-of-thumb for leverage points for this regression? (2p/n). Round to 4 decimal places.
+```{r 7}
+
+```
+
+```{r 8}
+
+```
+
+Are any of the observations in this regression analysis considered leverage points?
+
+```{r 9}
+
+```
+
+Four models are listed below. Fit these models and record the 
+and the values for each model. Which model would you prefer to use? Justify this choice. In your justification be sure to state the and values for your chosen model.
+
+```{r 10}
+
+```

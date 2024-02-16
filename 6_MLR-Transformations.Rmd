@@ -62,15 +62,11 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 ```{r 5}
 
-bc<-boxcox(slr)  #plots from -2 to 2 the box cox procedure
-lambda <- bc$x[which.max(bc$y)]
-lambda
+bc = boxcox(slr)
 
 ```
 
 ```{r 6}
-
-
 # Scatterplot
 plot(data$Sales,data$TV, 
      main="Scatterplot of Sales vs. TV Budget", 
