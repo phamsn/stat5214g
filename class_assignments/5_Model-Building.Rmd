@@ -1,0 +1,23 @@
+---
+title: 'Class Assignment 5: Model Building'
+author: "Stephanie N. Pham"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+library(gridExtra)
+library(Rfit)
+library(MASS)
+
+#######################################################
+
+# Bring in the "5_JET_Turbine.csv" data
+"C:/Users/phams/OneDrive/Documents/stat5214g/"
+data <- read.csv(file = "data/5_JET_Turbine.csv")
+```
+
+
