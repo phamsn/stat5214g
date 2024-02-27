@@ -27,6 +27,7 @@ Fit the multiple linear regression relating gas miles y (miles per gallon) to en
 
 mileage_fit = lm(mileage ~ displacement + carburetor, data = mileage)
 summary(mileage_fit)
+
 ```
 
 
@@ -70,14 +71,14 @@ Based on your plot in question 5, which observation is considered a potential ou
 ```{r 6}
 mileage_outlier <- hatvalues(mileage_fit);
 
-p = 3; n = 25;
+p = 3; n = 32;
 cutoff = (2*p)/n
 
 plot(mileage_outlier, main = "Leverage Points", ylab = 'Leverage Values',
      xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'black')
 
-
 which(h>cutoff) 
+which(mileage_outlier==max(mileage_outlier))
 
 ```
 

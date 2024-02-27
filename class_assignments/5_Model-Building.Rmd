@@ -12,12 +12,80 @@ library(dplyr)
 library(gridExtra)
 library(Rfit)
 library(MASS)
+# Packages for this assignment
+library(car)
+library(olsrr)
 
 #######################################################
 
 # Bring in the "5_JET_Turbine.csv" data
-"C:/Users/phams/OneDrive/Documents/stat5214g/"
+setwd("C:/Users/phams/OneDrive//Documents/stat5214g")
 data <- read.csv(file = "data/5_JET_Turbine.csv")
 ```
 
+Question 1: Fit the full model
+#------------------------------
+x1 = primary speed of rotation
+x2 = secondary speed of rotation
+x3 = fuel flow rate
+x4 = pressure
+x5 = exhaust temperature
+x6 = ambient temperature at the time of test
+```{r 1}
+jet_fit = lm(thrust ~ primary + secondary + fuel + press + exhaust + ambient, data = data)
+summary(jet_fit)
+```
 
+Question 1: Fit the full model. Wha tis the R-squared value?
+Question 2: Fit the full model. What is the R-squared adj. value? 
+Question 3: Fit the full model. What is the overall F-statistic.
+Question 4: Calculate VIF values for this full regression. What is the highest VIF value? Round to 2 decimal places.
+```{r 4}
+vif_values = vif(jet_fit)
+vif_values
+```
+
+Question 5: The VIF analysis indicates there is no concern of severe multicollinearity for this regression analysis.
+Question 6: Use the Mixed (Stepwise) Regression procedure with AIC to select a subset model. What model is suggested?
+```{r 6}
+stepwise = stepAIC(jet_fit, 
+                   direction = "both", 
+                   trace = FALSE)
+stepwise_2 = ols_step_both_aic(jet_fit)
+
+stepwise
+stepwise_2
+```
+
+Question 7: Perform All Possible Regressions (Models) for this full regression. What is the single best predictor?
+- Hoping that Cp statistic is 3 for a 2 predictor model
+```{r 7}
+all_possible = ols_step_all_possible(jet_fit)
+
+```
+
+Question 9: Calculate the VIF for each of the 4 models below. Select ALL models where the VIF suggests a problem with severe multicollinearity.
+
+Model A: primary, ambient
+Model B: primary, fuel, ambient
+Model C: primary, fuel, exhaust, ambient
+Model D: primary, fuel, pressure, exhaust, ambient
+```{r 9}
+
+a_fit = lm(thrust ~ primary + ambient, data = data)
+a_vif = vif(a_fit)
+a_vif
+
+b_fit = lm(thrust ~ primary + fuel + ambient, data = data)
+b_vif = vif(b_fit)
+b_vif
+
+c_fit = lm(thrust ~ primary + fuel+ exhaust + ambient, data = data)
+c_vif = vif(c_fit)
+c_vif
+
+d_fit = lm(thrust ~ primary + fuel + press + exhaust + ambient, data = data)
+d_vif = vif(d_fit)
+d_vif
+
+```
