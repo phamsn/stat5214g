@@ -19,7 +19,7 @@ library(olsrr)
 #######################################################
 
 # Bring in the "5_JET_Turbine.csv" data
-setwd("C:/Users/phams/OneDrive//Documents/stat5214g")
+setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
 data <- read.csv(file = "data/5_JET_Turbine.csv")
 ```
 

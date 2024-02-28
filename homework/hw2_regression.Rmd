@@ -1,0 +1,22 @@
+---
+title: "Homework 2 - Regression"
+author: "Stephanie N. Pham"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(MASS)
+library()
+
+
+#######################################################
+
+# Bring in the "salary.csv" data
+setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
+data <- read.csv(file = "data/2_salary.csv")
+```
+
