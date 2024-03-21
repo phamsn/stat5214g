@@ -1,0 +1,337 @@
+---
+title: "Regression - 1st half of semester"
+author: "Stephanie N. Pham"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+
+```{r homework1}
+
+# Salary data ##################################################################
+# Bring in the "salary" data
+setwd("C://Users//phams/OneDrive//Documents//stat5214g")
+salary <- read.csv(file = "data//salary.csv")
+
+# fit the model
+salary_fit = lm(Salary~., data=salary)
+
+# confidence interval of the current values
+confint(salary_fit,level=0.95)
+
+# create new dataframe with mathematician running late predictor values
+# predict salary based on mathematician running late values in new dataframe
+late_math = data.frame(Quality=5.4, Experience=17, Publication=6.0)
+late_math$Salary = predict(salary_fit, newdata = late_math)
+late_math$Salary
+
+# confidence interval based on only late mathematician predictor values
+predict(salary_fit,newdata=late_math, interval='confidence',level=0.95) # Confidence Intervals
+
+# predicted intervals
+pred_intervals <- predict(all_math_fit, interval = "prediction", level = 0.95)
+pred_intervals
+
+# confusing question where we had to generate tons of samples of something
+x = seq(0.5, 10, .5)
+x = matrix(x, nrow=length(x), ncol=1)
+beta_matrix = matrix(rep(0),nrow=500, ncol=2)
+y_expect = matrix(rep(0),nrow=500, ncol=1)
+
+for (k in 1:500){
+  e = rnorm(length(x), 0, 16)
+  y = 50+10*x+e
+  y = matrix(y)
+  mod_lm = lm(y~x)
+  beta_matrix[k,] = t(matrix(c(mod_lm$coefficients[1],mod_lm$coefficients[2])))
+  y_expect[k,] = mod_lm$coefficients[1] + mod_lm$coefficients[2]*5
+}
+
+intercepts = hist(beta_matrix[,1],main=NULL, xlab="beta 0")
+slopes = hist(beta_matrix[,2],main=NULL, xlab="beta 1")
+estimate = hist(y_expect, main=NULL, xlab="estimates")
+
+# Q-Q Plot
+qqnorm(stud,pch = 16);abline(0,1, col="red")
+
+# Wine data ####################################################################
+# Bring in the "wine" data
+wine <- read.csv(file = "data/problem_3.csv")
+wine_fit = lm(Quality.Rating..y.~., data=wine)
+
+# Scatterplot 
+plot(wine$Sulfur.Content..x.,wine$Quality.Rating..y., 
+     main="Sulfur Content x Quality Rating", 
+     xlab="Sulfur Content", 
+     ylab="Quality Rating", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Studentized residuals
+stud = rstudent(wine_fit)
+wine_mod = fitted(wine_fit)
+
+
+plot(wine_mod, stud,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Sulfur Content", 
+     ylab="Studentized Residuals",
+     ylim=(c(-4, 4))
+     );
+
+# Q-Q Plot
+qqnorm(stud,pch = 16);abline(0,1, col="red")
+
+# Shapiro-Wilk Test
+shapiro.test(stud)
+
+plot(1:length(stud), stud,
+     main="Order vs. Studentized Residuals", 
+     xlab="Order", 
+     ylab="Studentized Residuals",
+     ylim=(c(-4, 4)))
+
+```
+
+```{r homework2}
+# Bring in the "salary.csv" data
+setwd("C://Users//phams/OneDrive//Documents//stat5214g")
+data <- read.csv(file = "data//2_salary.csv")
+
+# Fit the model
+salary = lm(Salary ~ Quality + Experience + Publication, data = data)
+
+# Forward selection MLR
+salary_forward = ols_step_forward_p(salary,penter=0.85)
+ols_step_forward_aic(salary)
+
+# All possible models MLR
+salary_allmodels = ols_step_all_possible(salary)
+
+# Cook's D of the model that has been fit
+cooks.distance(salary)
+
+# Calculating cutoff using "Rule of Thumb"
+p = 3; n = 24;
+cutoff = (2*p)/n
+
+# Calculate VIF -- used to determine multicollinearity risk
+salary_vif
+```
+
+```{r class3}
+# Bring in the "athletes" data
+setwd("C:/Users/phams/Virginia Tech/SP Sandbox - Documents/Coursework/Regression/3_MLR")
+data <- read.csv(file = "2_athletes_data.csv")
+
+# Plot scatterplot and upload to Canvas
+plot(data$treadmill,data$km.run, 
+     main="Scatterplot of Athletes Treadmill vs. 10 km Run Time", 
+     xlab="Treadmill Time to Exhaustion", 
+     ylab="10 km Run Time", 
+     col="white", 
+     bg="navy",
+     cex=1.25, 
+     pch=24)
+
+# Fit model and obtain linear regression model
+mlr=lm(km.run~.,data=data)
+lm_sum = summary(mlr)
+lm_sum
+
+# Calculate population estimate for standard deviation
+lm_sum$sigma^2
+
+# Calculate test statistic for hypothesis test
+lm_sum$coefficients
+
+```
+
+```{r class4}
+
+# Bring in the "mileage" data
+setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
+mileage <- read.csv(file = "data/4_mileage.csv")
+
+# fit the model
+mileage_fit = lm(mileage ~ displacement + carburetor, data = mileage)
+summary(mileage_fit)
+
+# calculate studentized residuals
+# create Q-Q plot
+stud = rstudent(mileage_fit)
+mileage_fitted = fitted(mileage_fit)
+qqnorm(stud,pch = 16);abline(0,1, col="red")
+
+# calculate predicted values
+# calculate studentized residuals
+# plot of predicted values and studentized residuals
+p <- fitted(mileage_fit)    # Fitted (predicted) Values
+sr <- rstudent(mileage_fit) # Studentized Residuals
+
+
+plot(p,sr, pch = 16, main = 'Studentized Residuals vs Predicted',
+     xlab = ' Predicted - Mileage', ylab = 'Studentized Residuals', ylim=c(-5, 5));
+abline(h = 0, lty = 2 ); 
+abline(h = c(-2.5,2.5), lty = 1, col="orange")
+which(abs(sr)>2.5) # Prints the observations that are greater than the 2, -2 cutoff.
+
+# calculate cutoff and outliers
+mileage_outlier <- hatvalues(mileage_fit);
+
+p = 3; n = 32;
+cutoff = (2*p)/n
+
+plot(mileage_outlier, main = "Leverage Points", ylab = 'Leverage Values',
+     xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'black')
+
+which(h>cutoff) 
+which(mileage_outlier==max(mileage_outlier))
+
+# cutoff value
+cutoff
+
+# HIPs 
+c <- cooks.distance(mileage_fit)
+plot(c, main = "HIP Plots", ylab = 'Cooks Distance',
+     xlab = 'Observation Index',pch = 16)
+abline(h = 1, col = 'black')
+which(c > 1) # Prints the observations that are greater than the cutoff.
+
+# compare models
+mod_1 = lm(mileage ~ displacement, data = mileage)
+  summary(mod_1)
+  
+mod_2 = lm(mileage ~ displacement + carburetor, data = mileage)
+  summary(mod_2)
+  
+mileage$disp2 = mileage$displacement^2
+mod_3 = lm(mileage ~ disp2 + displacement, data = mileage)
+  summary(mod_3)
+
+mod_4 = lm(mileage ~ carburetor + displacement + disp2, data = mileage)
+  summary(mod_4)
+
+```
+
+```{r class5}
+
+# Bring in the "5_JET_Turbine.csv" data
+setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
+data <- read.csv(file = "data/5_JET_Turbine.csv")
+
+# fit the model
+jet_fit = lm(thrust ~ primary + secondary + fuel + press + exhaust + ambient, data = data)
+summary(jet_fit)
+
+# calculate VIF
+vif_values = vif(jet_fit)
+vif_values
+
+# stepwise MLR
+stepwise = stepAIC(jet_fit, 
+                   direction = "both", 
+                   trace = FALSE)
+stepwise_2 = ols_step_both_aic(jet_fit)
+
+stepwise
+stepwise_2
+
+# Question 7: Perform All Possible Regressions (Models) for this full regression. What is the single best predictor?
+# Hoping that Cp statistic is 3 for a 2 predictor model
+all_possible = ols_step_all_possible(jet_fit)
+
+# comparing models
+
+a_fit = lm(thrust ~ primary + ambient, data = data)
+a_vif = vif(a_fit)
+a_vif
+
+b_fit = lm(thrust ~ primary + fuel + ambient, data = data)
+b_vif = vif(b_fit)
+b_vif
+
+c_fit = lm(thrust ~ primary + fuel+ exhaust + ambient, data = data)
+c_vif = vif(c_fit)
+c_vif
+
+d_fit = lm(thrust ~ primary + fuel + press + exhaust + ambient, data = data)
+d_vif = vif(d_fit)
+d_vif
+
+```
+
+```{r class6}
+# Bring in the "tvmarketing.csv" data
+data <- read.csv(file = "data/3_tvmarketing.csv")
+
+# Data Dx
+# Scatterplot
+plot(data$Sales,data$TV, 
+     main="Scatterplot of Sales vs. TV Budget", 
+     xlab="Sales", 
+     ylab="TV Budget", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+# fit the model
+slr = lm(data$TV~data$Sales) 
+stud = rstudent(slr)
+slr_fit = fitted(slr)
+
+# studentized residuals plot
+plot(slr_fit, stud,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Sales", 
+     ylab="Studentized Residuals",
+     ylim=(c(-4, 4))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+```
+```{r 3}
+
+#Q-Q Plot
+qqnorm(stud,pch = 16);abline(0,1, col="red")
+
+#Transformation, boxcox
+bc = boxcox(slr)
+
+# Transformation dx ############################################################
+# Scatterplot
+plot(data$Sales,data$TV, 
+     main="Scatterplot of Sales vs. TV Budget", 
+     xlab="Sales", 
+     ylab="TV Budget", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Studentized residuals
+slr_bc = lm(powerTransform(y, lambda) ~ x)
+stud_bc = rstudent(slr_bc)
+slr_fit_bc = fitted(slr_bc)
+
+plot(slr_fit_bc, stud_bc,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Sales", 
+     ylab="Studentized Residuals",
+     ylim=(c(-4, 4))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+
+# Q-Q Plot
+qqnorm(stud_bc,pch = 16);abline(0,1, col="navy")
+```

@@ -1,0 +1,87 @@
+---
+title: "Regression Midterm - Spring 2024"
+author: "Stephanie N. Pham"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(car)
+#library(dplyr)
+#library(haven)
+#library(foreign)
+#library(naniar)
+#library(process)
+#library(olsrr)
+
+# Bring in T9 datasets
+setwd("C://Users//phams/OneDrive//Documents//stat5214g")
+satisfaction <- read.csv(file = "midterm//Satisfaction.csv")
+bloodpressure <- read.csv(file = "midterm//bloodpressure.csv") 
+
+```
+
+# Midterm Part I
+```{r 1}
+# Q1
+satisfaction_fit = lm(Satisfaction..y. ~ age..x1. + severity..x2. + anxiety..x3., data = satisfaction)
+summary = summary(satisfaction_fit)
+summary
+
+# Q14
+patient = data.frame(age..x1.=30, severity..x2.=52, anxiety..x3.=2)
+patient$Satisfaction..y. = predict(satisfaction_fit, newdata = patient)
+patient$Satisfaction..y.
+
+# Q15
+predict(satisfaction_fit,newdata=patient, interval='prediction',level=0.95) # Prediction Intervals
+predict(satisfaction_fit,newdata=patient, interval='confidence',level=0.95) # Confidence  Intervals
+
+
+# Q16
+satisfaction_outlier <- hatvalues(satisfaction_fit);
+
+p = 3; n = 46;
+cutoff = (2*p)/n
+
+plot(satisfaction_outlier, main = "Leverage Points", ylab = 'Leverage Values',
+     xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'black')
+
+# Q17
+satisfaction_vif = vif(satisfaction_fit)
+satisfaction_vif
+# Q18
+satisfaction_2 = lm(Satisfaction..y. ~ age..x1. + anxiety..x3., data = satisfaction)
+summary_2 = summary(satisfaction_2)
+summary_2
+```
+
+#   Midterm Part II
+```{r part2}
+# fit the model
+sbp = lm(sbp ~ height + weight + age, data = bloodpressure)
+summary_sbp = summary(sbp)
+summary_sbp
+
+# studentized residuals
+stud = studres(sbp)
+
+#plot predictor variable vs. studentized residuals
+plot(data2$disp, stud,  ylab='Studentized Residuals', xlab='Displacement') 
+
+#add horizontal line at 0
+abline(0, 0)
+
+# Outlier analysis
+sbp_outlier <- hatvalues(sbp);
+
+p = 3; n = 100;
+cutoff = (2*p)/n
+
+plot(sbp_outlier, main = "Leverage Points", ylab = 'Leverage Values',
+     xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'black')
+
+```
