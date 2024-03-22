@@ -10,14 +10,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(car)
+library(naniar)
 #library(dplyr)
 #library(haven)
 #library(foreign)
 #library(naniar)
 #library(process)
-#library(olsrr)
+library(olsrr)
 
-# Bring in T9 datasets
+# Bring in datasets
 setwd("C://Users//phams/OneDrive//Documents//stat5214g")
 satisfaction <- read.csv(file = "midterm//Satisfaction.csv")
 bloodpressure <- read.csv(file = "midterm//bloodpressure.csv") 
@@ -50,9 +51,13 @@ cutoff = (2*p)/n
 plot(satisfaction_outlier, main = "Leverage Points", ylab = 'Leverage Values',
      xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'black')
 
+outliers = which(satisfaction_outlier>0.06)
+outliers
+
 # Q17
 satisfaction_vif = vif(satisfaction_fit)
 satisfaction_vif
+
 # Q18
 satisfaction_2 = lm(Satisfaction..y. ~ age..x1. + anxiety..x3., data = satisfaction)
 summary_2 = summary(satisfaction_2)
@@ -66,22 +71,187 @@ sbp = lm(sbp ~ height + weight + age, data = bloodpressure)
 summary_sbp = summary(sbp)
 summary_sbp
 
-# studentized residuals
-stud = studres(sbp)
+# Scatterplots
 
-#plot predictor variable vs. studentized residuals
-plot(data2$disp, stud,  ylab='Studentized Residuals', xlab='Displacement') 
+# Height #
+# Scatterplot
+plot(bloodpressure$height, bloodpressure$sbp,
+     main="Height vs. Systolic Blood Pressure",
+     xlab="Height",
+     ylab="Systolic Blood Pressure",
+     col="navy",
+     bg="navy",
+     cex=1.25, 
+     pch=19)
 
+
+# Weight #
+plot(bloodpressure$weight, bloodpressure$sbp,
+     main="Weight vs. Systolic Blood Pressure",
+     xlab="Weight",
+     ylab="Systolic Blood Pressure",
+     col="navy",
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+plot(bloodpressure$age, bloodpressure$sbp,
+     main="Age vs. Systolic Blood Pressure",
+     xlab="Age",
+     ylab="Systolic Blood Pressure",
+     col="navy",
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+
+# Studentized residuals
+sbp_predicted = fitted(sbp)
+stud = rstudent(sbp)
+stud_10 = stud[-c(10)]
+stud_60 = stud[-c(60)]
+
+plot(sbp_predicted, stud,
+     main="Studentized Residuals vs. Predicted Values", 
+     xlab="Predicted Values", 
+     ylab="Studentized Residuals",
+     );
 #add horizontal line at 0
-abline(0, 0)
+abline(0, 0);
+abline(h = 2.5,col = 'navy')
+abline(h = -2.5,col = 'navy')
+which(stud > 2.5)
+which(stud < -2.5)
+
+# Q-Q plot
+qqnorm(stud,pch = 16);abline(0,1, col="navy")
+
+
+# Q-Q plot - removed HIPs
+qqnorm(stud_10,pch = 16);abline(0,1, col="navy")
+qqnorm(stud_60,pch = 16);abline(0,1, col="navy")
+
+
+# Shapiro-Wilk Test
+shapiro.test(stud)
+
 
 # Outlier analysis
 sbp_outlier <- hatvalues(sbp);
-
 p = 3; n = 100;
 cutoff = (2*p)/n
-
 plot(sbp_outlier, main = "Leverage Points", ylab = 'Leverage Values',
-     xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'black')
+     xlab = 'Observation Index',pch = 16);abline(h = cutoff, col = 'navy')
+sbq_outlier_values = which(sbp_outlier>cutoff)
+sbq_outlier_values
+
+
+# Cook's D and HIPs
+c <- cooks.distance(sbp)
+plot(c, main = "HIP Plots", ylab = 'Cooks Distance',
+     xlab = 'Observation Index',pch = 16)
+abline(h = 0.5, col = 'navy')
+which(c > 0.5) # Prints the observations that are greater than the cutoff.
+
+
+# Studentized residuals by index
+plot(stud)
+
+
+# Plot(stud[-c(10)])
+plot(stud[-c(10,75)])
+
+```
+
+
+```{r noHIP}
+# Remove HIPs
+bloodpressure_noHIP = bloodpressure[-c(10,60),]
+
+# Scatterplot
+plot(bloodpressure_noHIP$height, bloodpressure_noHIP$sbp,
+     main="Height vs. Systolic Blood Pressure",
+     xlab="Height",
+     ylab="Systolic Blood Pressure",
+     col="blueviolet",
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+
+# Weight #
+plot(bloodpressure_noHIP$weight, bloodpressure_noHIP$sbp,
+     main="Weight vs. Systolic Blood Pressure",
+     xlab="Weight",
+     ylab="Systolic Blood Pressure",
+     col="blueviolet",
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+plot(bloodpressure_noHIP$age, bloodpressure_noHIP$sbp,
+     main="Age vs. Systolic Blood Pressure",
+     xlab="Age",
+     ylab="Systolic Blood Pressure",
+     col="blueviolet",
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+# Model fit
+sbp_noHIP = lm(sbp ~ height + weight + age, data = bloodpressure_noHIP)
+summary_sbp_noHIP = summary(sbp_noHIP)
+summary_sbp_noHIP
+
+# Studentized residuals
+sbp_noHIP_predicted = fitted(sbp_noHIP)
+stud_noHIP = rstudent(sbp_noHIP)
+
+
+plot(sbp_noHIP_predicted, stud_noHIP,
+     main="Studentized Residuals vs. Predicted Values", 
+     xlab="Predicted Values", 
+     ylab="Studentized Residuals",
+     );
+#add horizontal line at 0
+abline(0, 0);
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+which(abs(stud_noHIP) > 2.5)
+
+
+# Q-Q plot
+qqnorm(stud_noHIP,pch = 16);abline(0,1, col="blueviolet")
+shapiro.test(stud_noHIP)
+
+
+# Outlier analysis
+sbp_outlier_noHIP <- hatvalues(sbp_noHIP);
+p = 3; n = 98;
+cutoff_noHIP = (2*p)/n
+plot(sbp_outlier_noHIP, 
+     main = "Leverage Points", 
+     ylab = 'Leverage Values',
+     xlab = 'Observation Index',
+     pch = 16);abline(h = cutoff_noHIP, 
+                      col = 'blueviolet')
+sbq_outlier_values_noHIP = which(sbp_outlier_noHIP>cutoff_noHIP)
+sbq_outlier_values_noHIP
+
+# Cook's D and HIPs
+c2 <- cooks.distance(sbp_noHIP)
+plot(c2, main = "HIP Plots", ylab = 'Cooks Distance',
+     xlab = 'Observation Index',pch = 16)
+abline(h = 1, col = 'blueviolet')
+which(c2 > 1) # Prints the observations that are greater than the cutoff.
+
+#VIF
+vif_sbp_noHIP = vif(sbp_noHIP)
+vif_sbp_noHIP
+
+```
+
+
+```{r model}
 
 ```
