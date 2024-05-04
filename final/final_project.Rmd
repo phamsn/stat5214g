@@ -1,0 +1,751 @@
+---
+title: "Final Project Analyses - STAT5214G"
+author: "Stephanie N. Pham"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ggplot2)
+library(haven)
+library(ltm)
+# library(readr)
+# library(car)
+#library(dplyr)
+
+
+################################
+# Read in SPSS file of Sleep Study Data
+setwd("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study")
+# test = read_sav("T6 MERGED Data CLEANED.sav")
+# test_csv = write_csv(
+#   test,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\test.csv"
+#   )
+
+
+# Item-level data
+data_p = read_sav("T5 Parent Raw and Scored_5.12.2020.sav")
+data_a = read_sav("T5 Adolescent Raw and Scored_6.11.2020.sav")
+
+data_item_parent = write_csv(
+  data_p,
+  path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_parent.csv"
+  )
+data_item_adolescent = write_csv(
+  data_a,
+  path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_adolescent.csv"
+  )
+
+
+
+# Only T5 data
+data_sav = read_sav("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\T5 Sleep Study Dataset.sav")
+data_csv = write_csv(
+  data_sav,
+  path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\t5_data.csv"
+  )
+```
+
+# Pull in specific variables of interest for this analysis
+```{r variables}
+
+# Create dataframe with only variables of interest
+data_allgroups = data_csv[,c(
+  "ID",
+  "Group",
+  #"MedT5D",
+#Parent ADHD (BAARS-IV)
+  "BAAToM",
+  # "BAAINM",
+  # "BAAHIM",
+#Parent DASS
+  "DASdeS",
+  "DASanS",
+  "DASstS",
+  "DASinS2",
+  "DAStoS2",
+#Parent DERS
+  "DERpToS",
+  # "DERpStrS5",
+  # "DERpNonS5",
+  # "DERpImpS5",
+  # "DERpGoaS5",
+  # "DERpClaS5",
+#Parent PBS
+  "PBSposS",
+  "PBSdisS",
+  "PBSmatS",
+  "PBSteaS",
+#Adolescent ER
+  "ERCToM",
+  # "ERCNEGM",
+  # "ERCREGM",
+#Adolescent DERS
+  "DERaToS"
+  # "DERaStrS",
+  # "DERaNonS",
+  # "DERaImpS",
+  # "DERaGoaS",
+  # "DERaClaS"
+)]
+
+
+# ADHD only dataset
+data_adhd <- data_allgroups[data_allgroups$Group == 1, ]
+
+```
+
+```{r erc}
+library(psych)
+# Data: original datasets
+data_p
+data_a
+
+# Pull in specific items for subscales
+erc_orig = data_item_parent[,c(
+  "ERC1orig",
+  "ERC2",
+  "ERC3orig",
+  "ERC4orig",
+  "ERC5orig",
+  "ERC6",
+  "ERC7orig",
+  "ERC8",
+  "ERC9orig",
+  "ERC10",
+  "ERC11orig",
+  "ERC12",
+  "ERC13",
+  "ERC14",
+  "ERC15orig",
+  "ERC16",
+  "ERC17",
+  "ERC18",
+  "ERC19",
+  "ERC20",
+  "ERC21orig",
+  "ERC22",
+  "ERC23orig",
+  "ERC24"
+)]
+
+# Using reverse.code() function
+key <- c(-1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, 1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, -1, 1)
+erc_rev <- reverse.code(key, erc_orig, mini=1, maxi=4)
+erc_rev
+```
+
+```{r baars}
+# BAARS-IV
+baars = data_item_parent[,c(
+  "BAA1",
+  "BAA2",
+  "BAA3",
+  "BAA4",
+  "BAA5",
+  "BAA6",
+  "BAA7",
+  "BAA8",
+  "BAA9",
+  "BAA10",
+  "BAA11",
+  "BAA12",
+  "BAA13",
+  "BAA14",
+  "BAA15",
+  "BAA16",
+  "BAA17",
+  "BAA18"
+)]
+```
+
+```{r dass_21}
+# DASS-21
+#   Total
+dass = data_item_parent[,c(
+  "DAS1",
+  "DAS2",
+  "DAS3",
+  "DAS4",
+  "DAS5",
+  "DAS6",
+  "DAS7",
+  "DAS8",
+  "DAS9",
+  "DAS10",
+  "DAS11",
+  "DAS12",
+  "DAS13",
+  "DAS14",
+  "DAS15",
+  "DAS16",
+  "DAS17",
+  "DAS18",
+  "DAS19",
+  "DAS20",
+  "DAS21"
+)]
+dass_alpha = cronbach.alpha(dass[complete.cases(dass), ])
+dass_alpha
+```
+
+```{r ders}
+# DERS - Adolescent
+# Reverse items: 
+ders_a = data_item_adolescent[,c(
+  "DERa1orig",
+  "DERa2",
+  "DERa3",
+  "DERa4orig",
+  "DERa5",
+  "DERa6orig",
+  "DERa7",
+  "DERa8",
+  "DERa9",
+  "DERa10",
+  "DERa11",
+  "DERa12",
+  "DERa13",
+  "DERa14",
+  "DERa15",
+  "DERa16",
+  "DERa17",
+  "DERa18"
+)]
+# Using reverse.code() function
+key <- c(-1,1,1,-1,1,-1,1,1,1,1,1,1,1,1,1,1,1,1)
+ders_a_rev <- reverse.code(key, ders_a, mini=1, maxi=5)
+ders_a_rev
+
+# DERS - Parent
+# Reverse items: 
+ders_p = data_item_parent[,c(
+  "DERp1orig",
+  "DERp2",
+  "DERp3",
+  "DERp4orig",
+  "DERp5",
+  "DERp6orig",
+  "DERp7",
+  "DERp8",
+  "DERp9",
+  "DERp10",
+  "DERp11",
+  "DERp12",
+  "DERp13",
+  "DERp14",
+  "DERp15",
+  "DERp16",
+  "DERp17",
+  "DERp18"
+)]
+
+# Using reverse.code() function
+key <- c(-1,1,1,-1,1,-1,1,1,1,1,1,1,1,1,1,1,1,1)
+ders_p_rev <- reverse.code(key, ders_p, mini=1, maxi=5)
+ders_p_rev			
+
+# DERS Renaming variables to calculate reliability
+# DERpToS
+# DERaToS
+
+ders_a_rename = colnames(ders_a_rev) = c(
+  "DER1orig",
+  "DER2",
+  "DER3",
+  "DER4orig",
+  "DER5",
+  "DER6orig",
+  "DER7",
+  "DER8",
+  "DER9",
+  "DER10",
+  "DER11",
+  "DER12",
+  "DER13",
+  "DER14",
+  "DER15",
+  "DER16",
+  "DER17",
+  "DER18"
+)
+
+ders_p_rename = colnames(ders_p_rev) = c(
+  "DER1orig",
+  "DER2",
+  "DER3",
+  "DER4orig",
+  "DER5",
+  "DER6orig",
+  "DER7",
+  "DER8",
+  "DER9",
+  "DER10",
+  "DER11",
+  "DER12",
+  "DER13",
+  "DER14",
+  "DER15",
+  "DER16",
+  "DER17",
+  "DER18"
+)
+
+ders_a_p = data.frame(rbind(ders_a_rev,ders_p_rev))
+ders_a_p
+
+```
+
+```{r pbs}
+# Parental Behavior Scale (PBS)
+pbs = data_item_parent[,c(
+  "PBS1",
+  "PBS2",
+  "PBS3",
+  "PBS4",
+  "PBS5",
+  "PBS6",
+  "PBS7",
+  "PBS8",
+  "PBS9",
+  "PBS10",
+  "PBS11",
+  "PBS12",
+  "PBS13",
+  "PBS14",
+  "PBS15",
+  "PBS16",
+  "PBS17",
+  "PBS18",
+  "PBS19",
+  "PBS20",
+  "PBS21",
+  "PBS22",
+  "PBS23",
+  "PBS24",
+  "PBS25",
+  "PBS26",
+  "PBS27",
+  "PBS28",
+  "PBS29",
+  "PBS30",
+  "PBS31",
+  "PBS32",
+  "PBS33",
+  "PBS34",
+  "PBS35",
+  "PBS36",
+  "PBS37",
+  "PBS38",
+  "PBS39",
+  "PBS40"
+)]
+# Positive Parenting Sum = #3, #4, #5, #7, #8, #10, #11, #12, #16, #24, #25
+pbs_positive = data_item_parent[,c(
+  "PBS3",
+  "PBS4",
+  "PBS5",
+  "PBS7",
+  "PBS8",
+  "PBS10",
+  "PBS11",
+  "PBS12",
+  "PBS16",
+  "PBS24",
+  "PBS25"
+)]
+  
+# Discipline Sum = #9, #13, #14, #17, #18, #21 
+pbs_discipline = data_item_parent[,c(
+  "PBS9",
+  "PBS13",
+  "PBS14",
+  "PBS17",
+  "PBS18",
+  "PBS21"
+)]
+
+# Material Rewarding Sum = #15, #19, #26, #27
+pbs_material = data_item_parent[,c(
+  "PBS15",
+  "PBS19",
+  "PBS26",
+  "PBS27"
+)]
+
+# Teaching Rules Sum = #1, #2, #6, #20, #22, #23
+pbs_teaching = data_item_parent[,c(
+  "PBS1",
+  "PBS2",
+  "PBS6",
+  "PBS20",
+  "PBS22",
+  "PBS23"
+)]
+
+```
+
+```{r reliability}
+###############################################################################
+# BAARS-IV
+baars_alpha = cronbach.alpha(baars[complete.cases(baars), ])
+baars_alpha
+
+###############################################################################
+# DASS-21
+##  Total
+dass_alpha = cronbach.alpha(dass[complete.cases(dass), ])
+dass_alpha
+
+dass_alpha = cronbach.alpha(dass[complete.cases(dass), ])
+dass_alpha
+#   Stress
+#   Anxiety
+#   Depression
+dass_alpha = cronbach.alpha(dass[complete.cases(dass), ])
+dass_alpha
+#   Stress
+#   Anxiety
+#   Depression
+
+
+###############################################################################
+# DERS - Adolescent
+# DERS - Parent
+ders_a_p_alpha = cronbach.alpha(ders_a_p[complete.cases(ders_a_p), ])
+ders_a_p_alpha
+
+
+###############################################################################
+# Emotion Regulation Checklist (ERC)
+## negative emotion/lability subscale
+erc_ne_lab = erc_rev[,c(
+  "ERC1orig-",
+  "ERC3orig-",
+  "ERC7orig-",
+  "ERC15orig-",
+  "ERC16",
+  "ERC18",
+  "ERC21orig-",
+  "ERC23orig-"
+)]
+erc_ne_lab_alpha = cronbach.alpha(erc_ne_lab[complete.cases(erc_ne_lab), ])
+erc_ne_lab_alpha
+
+## emotion regulation subscale
+erc_er = erc_rev[,c(
+  "ERC2",
+  "ERC4orig-",
+  "ERC5orig-",
+  "ERC6",
+  "ERC8",
+  "ERC9orig-",
+  "ERC10",
+  "ERC11orig-",
+  "ERC13",
+  "ERC14",
+  "ERC17",
+  "ERC19",
+  "ERC20",
+  "ERC22",
+  "ERC24"
+)]
+erc_er_alpha = cronbach.alpha(erc_er[complete.cases(erc_er), ])
+erc_er_alpha
+
+###############################################################################
+# Parental Behavior Scale (PBS)
+#   Positive Parenting
+pbs_positive_alpha = cronbach.alpha(pbs_positive[complete.cases(pbs_positive), ])
+pbs_positive_alpha
+
+#   Discipline
+pbs_discipline_alpha = cronbach.alpha(pbs_discipline[complete.cases(pbs_discipline), ])
+pbs_discipline_alpha
+
+#   Material Rewarding
+pbs_material_alpha = cronbach.alpha(pbs_material[complete.cases(pbs_material), ])
+pbs_material_alpha
+
+#   Teaching Rules 
+pbs_teaching_alpha = cronbach.alpha(pbs_teaching[complete.cases(pbs_teaching), ])
+pbs_teaching_alpha
+
+```
+
+Model with Adolescent Emotion Regulation (ER) as outcome
+- look at variance inflation (VIF)
+- look for HIPS and leverage points
+```{r ER_diagnostics}
+# model with Adolescent Emo. Reg (ER) as outcome
+mdl_ER = lm(ERCToM ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS, data=data_allgroups)
+summary(mdl_ER)
+
+# Studentized residuals
+stud_ER = rstudent(mdl_ER)
+ER_fitted = fitted(mdl_ER)
+
+plot_studER = plot(ER_fitted, stud_ER,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Caregiver Variables", 
+     ylab="Studentized Residuals",
+     ylim=(c(-max(stud_ER), max(stud_ER)))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+
+
+# Q-Q plot
+qqnorm(stud_ER,pch = 16);abline(0,1, col="red")
+
+# VIF
+vif_ER = vif(mdl_ER)
+vif_ER
+
+# Shapiro-Wilk Test
+shapiro.test(stud_ER)
+
+```
+
+```{r ER_outliers}
+
+# calculate predicted values
+# calculate studentized residuals
+# plot of predicted values and studentized residuals
+p = fitted(mdl_ER)    # Fitted (predicted) Values
+sr = rstudent(mdl_ER) # Studentized Residuals
+
+# Studentized residuals plot
+plot_studER = plot(ER_fitted, stud_ER,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Adolescent ER", 
+     ylab="Studentized Residuals",
+     ylim=(c(-max(stud_ER), max(stud_ER)))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+
+
+# calculate cutoff and outliers
+# outliers
+ER_outlier <- hatvalues(mdl_ER);
+
+# cutoff 
+p = 7; n = 266;
+cutoff = (2*p)/n
+
+# Plot outliers
+plot(ER_outlier, 
+     main = "Leverage Points", 
+     ylab = 'Leverage Values',
+     xlab = 'Observation Index',
+     pch = 16);
+abline(h = cutoff, col = 'orange')
+
+which(ER_outlier > cutoff) 
+which(ER_outlier==max(ER_outlier))
+
+# cutoff value
+cutoff
+
+# HIPs 
+c <- cooks.distance(mdl_ER)
+plot(c, main = "HIP Plots", 
+     ylab = 'Cooks Distance',
+     xlab = 'Observation Index',
+     pch = 16)
+abline(h = 1, col = 'orange')
+
+# Prints the observations that are greater than the cutoff.
+which(c > 1) 
+
+```
+
+```{r ED_diagnostics}
+# model with Adolescent Emo. Dysreg. (ED) as outcome
+mdl_ED = lm(DERaToS ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS, data=data_allgroups)
+summary(mdl_ED)
+
+# Studentized residuals
+stud_ED = rstudent(mdl_ED)
+ED_fitted = fitted(mdl_ED)
+
+plot_studED = plot(ED_fitted, stud_ED,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Adolescent Emotion Dysregulation", 
+     ylab="Studentized Residuals",
+     ylim=(c(-max(stud_ED), max(stud_ED)))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+
+
+# Q-Q plot
+qqnorm(stud_ED,pch = 16);abline(0,1, col="red")
+
+# VIF
+vif_ED = vif(mdl_ED)
+vif_ED
+
+```
+
+```{r ER_scatterplots}
+### OUTCOME = Adolescent ER
+
+# Parent ADHD
+plot(data_allgroups$BAAToM,data_allgroups$ERCToM, 
+     main="Parent ADHD x Adolescent ER", 
+     xlab="Parent ADHD ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Parent total stress, anxiety, depression
+plot(data_allgroups$DAStoS2,data_allgroups$ERCToM, 
+     main="Parent Psychopathology x Adolescent ER", 
+     xlab="Parent Psychopathology ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Parent ED
+plot(data_allgroups$DERpToS,data_allgroups$ERCToM, 
+     main="Parent ED x Adolescent ER", 
+     xlab="Parent ED ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Positive Parenting
+plot(data_allgroups$PBSposS,data_allgroups$ERCToM, 
+     main="Positive Parenting x Adolescent ER", 
+     xlab="Positive Parenting ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+# Discipline
+plot(data_allgroups$PBSdisS,data_allgroups$ERCToM, 
+     main="Discipline x Adolescent ER", 
+     xlab="Discipline ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+
+# Material Rewarding
+plot(data_allgroups$PBSmatS,data_allgroups$ERCToM, 
+     main="Material Rewarding x Adolescent ER", 
+     xlab="Material Rewarding ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+
+
+# Teaching Rules
+plot(data_allgroups$PBSteaS,data_allgroups$ERCToM, 
+     main="Teaching Rules x Adolescent ER", 
+     xlab="Teaching Rules ", 
+     ylab="Adolescent ER", 
+     col="navy", 
+     bg="navy",
+     cex=1.25, 
+     pch=19)
+```
+
+```{r ED_scatterplots}
+### OUTCOME = Adolescent ED
+
+# Parent ADHD
+plot(data_allgroups$BAAToM,data_allgroups$DERaToS, 
+     main="Parent ADHD x Adolescent ED", 
+     xlab="Parent ADHD ", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+# Parent total stress, anxiety, depression
+plot(data_allgroups$DAStoS2,data_allgroups$DERaToS, 
+     main="Parent Psychopathology x Adolescent ED", 
+     xlab="Parent Psychopathology ", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+# Parent ED
+plot(data_allgroups$DERpToS,data_allgroups$DERaToS, 
+     main="Parent ED x Adolescent ED", 
+     xlab="Parent ED ", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+# Positive Parenting
+plot(data_allgroups$PBSposS,data_allgroups$DERaToS, 
+     main="Positive Parenting x Adolescent ED", 
+     xlab="Positive Parenting ", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+# Discipline
+plot(data_allgroups$PBSdisS,data_allgroups$DERaToS, 
+     main="Discipline x Adolescent ED", 
+     xlab="Discipline ", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+
+# Material Rewarding
+plot(data_allgroups$PBSmatS,data_allgroups$DERaToS, 
+     main="Material Rewarding x Adolescent ED", 
+     xlab="Material Rewarding", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+
+
+# Teaching Rules
+plot(data_allgroups$PBSteaS,data_allgroups$DERaToS, 
+     main="Teaching Rules x Adolescent ED", 
+     xlab="Teaching Rules ", 
+     ylab="Adolescent ED", 
+     col="blueviolet", 
+     bg="blueviolet",
+     cex=1.25, 
+     pch=19)
+```
+
+
