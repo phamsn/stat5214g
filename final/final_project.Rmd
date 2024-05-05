@@ -13,13 +13,13 @@ library(ggplot2)
 library(haven)
 library(ltm)
 # library(readr)
-# library(car)
+library(car)
 #library(dplyr)
 
 
 ################################
 # Read in SPSS file of Sleep Study Data
-setwd("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study")
+# setwd("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study")
 # test = read_sav("T6 MERGED Data CLEANED.sav")
 # test_csv = write_csv(
 #   test,
@@ -27,31 +27,45 @@ setwd("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study")
 #   )
 
 
-# Item-level data
-data_p = read_sav("T5 Parent Raw and Scored_5.12.2020.sav")
-data_a = read_sav("T5 Adolescent Raw and Scored_6.11.2020.sav")
-
-data_item_parent = write_csv(
-  data_p,
-  path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_parent.csv"
-  )
-data_item_adolescent = write_csv(
-  data_a,
-  path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_adolescent.csv"
-  )
+# Paths to data files
+data_path = "data/sleep_study"
+#data_path = "C:/Users/phams/OneDrive/Documents/stat5214g/data/sleep_study"
+data_p_path = paste(sep = "/", data_path, "T5 Parent Raw and Scored_5.12.2020.sav")
+data_a_path = paste(sep = "/", data_path, "T5 Adolescent Raw and Scored_6.11.2020.sav")
+data_csv_path = paste(sep = "/", data_path, "t5_data.csv")
+data_item_parent_path = paste(sep = "/", data_path, "data_item_parent.csv")
+data_item_adolescent_path = paste(sep = "/", data_path, "data_item_adolescent.csv")
+data_sav_path = paste(sep = "/", data_path, "T5 Sleep Study Dataset.sav")
 
 
+
+data_p = read_sav(data_p_path)
+data_a = read_sav(data_a_path)
+
+# data_item_parent = write_csv(
+#   data_p,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_parent.csv"
+#   )
+# data_item_adolescent = write_csv(
+#   data_a,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_adolescent.csv"
+#   )
 
 # Only T5 data
-data_sav = read_sav("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\T5 Sleep Study Dataset.sav")
-data_csv = write_csv(
-  data_sav,
-  path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\t5_data.csv"
-  )
+data_sav = read_sav(data_sav_path)
+# data_csv = write_csv(
+#   data_sav,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\t5_data.csv"
+#   )
+
+data_item_parent = read_csv(data_item_parent_path)
+data_item_adolescent = read_csv(data_item_adolescent_path)
+data_csv = read_csv(data_csv_path)
 ```
 
 # Pull in specific variables of interest for this analysis
 ```{r variables}
+
 
 # Create dataframe with only variables of interest
 data_allgroups = data_csv[,c(
@@ -525,7 +539,7 @@ plot_studER = plot(ER_fitted, stud_ER,
      main="Studentized Residuals vs. Predicted", 
      xlab="Adolescent ER", 
      ylab="Studentized Residuals",
-     ylim=(c(-max(stud_ER), max(stud_ER)))
+     ylim=(c(-max(stud_ER), max(stud_ER))),
      );
 abline(h = 0,col = 'violet')
 abline(h = 2.5,col = 'blueviolet')
@@ -598,56 +612,57 @@ vif_ED
 
 ```{r ER_scatterplots}
 ### OUTCOME = Adolescent ER
+plot_col = c("navy", "darkorange")[data_allgroups$Group]
 
 # Parent ADHD
 plot(data_allgroups$BAAToM,data_allgroups$ERCToM, 
      main="Parent ADHD x Adolescent ER", 
      xlab="Parent ADHD ", 
      ylab="Adolescent ER", 
-     col="navy", 
      bg="navy",
-     cex=1.25, 
-     pch=19)
+     cex=1.25,
+     col = plot_col,
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
 # Parent total stress, anxiety, depression
 plot(data_allgroups$DAStoS2,data_allgroups$ERCToM, 
      main="Parent Psychopathology x Adolescent ER", 
      xlab="Parent Psychopathology ", 
      ylab="Adolescent ER", 
-     col="navy", 
+     col=plot_col, 
      bg="navy",
      cex=1.25, 
-     pch=19)
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
 # Parent ED
 plot(data_allgroups$DERpToS,data_allgroups$ERCToM, 
      main="Parent ED x Adolescent ER", 
      xlab="Parent ED ", 
      ylab="Adolescent ER", 
-     col="navy", 
+     col=plot_col, 
      bg="navy",
      cex=1.25, 
-     pch=19)
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
 # Positive Parenting
 plot(data_allgroups$PBSposS,data_allgroups$ERCToM, 
      main="Positive Parenting x Adolescent ER", 
      xlab="Positive Parenting ", 
      ylab="Adolescent ER", 
-     col="navy", 
+     col=plot_col, 
      bg="navy",
      cex=1.25, 
-     pch=19)
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
 # Discipline
 plot(data_allgroups$PBSdisS,data_allgroups$ERCToM, 
      main="Discipline x Adolescent ER", 
      xlab="Discipline ", 
      ylab="Adolescent ER", 
-     col="navy", 
+     col=plot_col, 
      bg="navy",
      cex=1.25, 
-     pch=19)
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
 
 # Material Rewarding
@@ -655,10 +670,10 @@ plot(data_allgroups$PBSmatS,data_allgroups$ERCToM,
      main="Material Rewarding x Adolescent ER", 
      xlab="Material Rewarding ", 
      ylab="Adolescent ER", 
-     col="navy", 
+     col=plot_col, 
      bg="navy",
      cex=1.25, 
-     pch=19)
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
 
 # Teaching Rules
@@ -666,10 +681,10 @@ plot(data_allgroups$PBSteaS,data_allgroups$ERCToM,
      main="Teaching Rules x Adolescent ER", 
      xlab="Teaching Rules ", 
      ylab="Adolescent ER", 
-     col="navy", 
+     col=plot_col, 
      bg="navy",
      cex=1.25, 
-     pch=19)
+     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 ```
 
 ```{r ED_scatterplots}
