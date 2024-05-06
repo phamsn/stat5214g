@@ -97,7 +97,7 @@ data_allgroups = data_csv[,c(
 #Adolescent ER
   "ERCToM",
   # "ERCNEGM",
-  # "ERCREGM",
+  "ERCREGM",
 #Adolescent DERS
   "DERaToS"
   # "DERaStrS",
@@ -110,9 +110,11 @@ data_allgroups = data_csv[,c(
 
 # ADHD only dataset
 data_allgroups$Group = factor(data_allgroups$Group, levels = c(0,1), labels = c("non-ADHD", "ADHD"))
-data_adhd <- data_allgroups[data_allgroups$Group == "ADHD", ]
+data_adhd = data_allgroups[data_allgroups$Group == "ADHD", ]
+data_nonadhd = data_allgroups[data_allgroups$Group == "non-ADHD", ]
 
 ```
+
 
 #   Subsetting each measure/scale for reverse scoring
 ```{r erc}
@@ -499,7 +501,7 @@ pbs_teaching_alpha
 - look for HIPS and leverage points
 ```{r ER_diagnostics}
 # model with Adolescent Emo. Reg (ER) as outcome
-mdl_ER = lm(ERCToM ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS + Group, data=data_allgroups)
+mdl_ER = lm(ERCREGM ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS + Group, data=data_allgroups)
 summary(mdl_ER)
 
 # Studentized residuals
@@ -508,7 +510,7 @@ ER_fitted = fitted(mdl_ER)
 
 plot_studER = plot(ER_fitted, stud_ER,
      main="Studentized Residuals vs. Predicted", 
-     xlab="Caregiver Variables", 
+     xlab="Predicted Adolescent ER", 
      ylab="Studentized Residuals",
      ylim=(c(-max(stud_ER), max(stud_ER)))
      );
@@ -638,20 +640,29 @@ plot(data_allgroups$PBSdisS,data_allgroups$ERCToM,
      cex=1.25, 
      pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
+# # Material Rewarding
+# plot(data_allgroups$PBSmatS,data_allgroups$ERCToM, 
+#      main="Material Rewarding x Adolescent ER", 
+#      xlab="Material Rewarding ", 
+#      ylab="Adolescent ER", 
+#      col=plot_col, 
+#      bg="navy",
+#      cex=1.25, 
+#      pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
+# 
+# 
+# # Teaching Rules
+# plot(data_allgroups$PBSteaS,data_allgroups$ERCToM, 
+#      main="Teaching Rules x Adolescent ER", 
+#      xlab="Teaching Rules ", 
+#      ylab="Adolescent ER", 
+#      col=plot_col, 
+#      bg="navy",
+#      cex=1.25, 
+#      pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
 
-# Material Rewarding
-plot(data_allgroups$PBSmatS,data_allgroups$ERCToM, 
-     main="Material Rewarding x Adolescent ER", 
-     xlab="Material Rewarding ", 
-     ylab="Adolescent ER", 
-     col=plot_col, 
-     bg="navy",
-     cex=1.25, 
-     pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
-
-
-# Teaching Rules
-plot(data_allgroups$PBSteaS,data_allgroups$ERCToM, 
+# Adolescent ADHD Status
+plot(data_allgroups$Group,data_allgroups$ERCToM, 
      main="Teaching Rules x Adolescent ER", 
      xlab="Teaching Rules ", 
      ylab="Adolescent ER", 
