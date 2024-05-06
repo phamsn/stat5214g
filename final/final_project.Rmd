@@ -114,6 +114,7 @@ data_adhd <- data_allgroups[data_allgroups$Group == "ADHD", ]
 
 ```
 
+#   Subsetting each measure/scale for reverse scoring
 ```{r erc}
 library(psych)
 # Data: original datasets
@@ -492,12 +493,13 @@ pbs_teaching_alpha
 
 ```
 
-Model with Adolescent Emotion Regulation (ER) as outcome
+
+## FINAL PROJECT ANALYSES ##
 - look at variance inflation (VIF)
 - look for HIPS and leverage points
 ```{r ER_diagnostics}
 # model with Adolescent Emo. Reg (ER) as outcome
-mdl_ER = lm(ERCToM ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS, data=data_allgroups)
+mdl_ER = lm(ERCToM ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS + Group, data=data_allgroups)
 summary(mdl_ER)
 
 # Studentized residuals
@@ -582,35 +584,6 @@ which(c > 1)
 
 ```
 
-```{r ED_diagnostics}
-# model with Adolescent Emo. Dysreg. (ED) as outcome
-mdl_ED = lm(DERaToS ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS, data=data_allgroups)
-summary(mdl_ED)
-
-# Studentized residuals
-stud_ED = rstudent(mdl_ED)
-ED_fitted = fitted(mdl_ED)
-
-plot_studED = plot(ED_fitted, stud_ED,
-     main="Studentized Residuals vs. Predicted", 
-     xlab="Adolescent Emotion Dysregulation", 
-     ylab="Studentized Residuals",
-     ylim=(c(-max(stud_ED), max(stud_ED)))
-     );
-abline(h = 0,col = 'violet')
-abline(h = 2.5,col = 'blueviolet')
-abline(h = -2.5,col = 'blueviolet')
-
-
-# Q-Q plot
-qqnorm(stud_ED,pch = 16);abline(0,1, col="red")
-
-# VIF
-vif_ED = vif(mdl_ED)
-vif_ED
-
-```
-
 ```{r ER_scatterplots}
 ### OUTCOME = Adolescent ER
 plot_col = c("navy", "darkorange")[data_allgroups$Group]
@@ -686,6 +659,37 @@ plot(data_allgroups$PBSteaS,data_allgroups$ERCToM,
      bg="navy",
      cex=1.25, 
      pch=19); legend(x="topright", legend=c("non-adhd", "adhd"), fill = plot_col)
+```
+
+
+#   DO NOT USE!!!  #
+```{r ED_diagnostics}
+# model with Adolescent Emo. Dysreg. (ED) as outcome
+mdl_ED = lm(DERaToS ~ BAAToM + DAStoS2 + DERpToS + PBSposS + PBSdisS + PBSmatS + PBSteaS, data=data_allgroups)
+summary(mdl_ED)
+
+# Studentized residuals
+stud_ED = rstudent(mdl_ED)
+ED_fitted = fitted(mdl_ED)
+
+plot_studED = plot(ED_fitted, stud_ED,
+     main="Studentized Residuals vs. Predicted", 
+     xlab="Adolescent Emotion Dysregulation", 
+     ylab="Studentized Residuals",
+     ylim=(c(-max(stud_ED), max(stud_ED)))
+     );
+abline(h = 0,col = 'violet')
+abline(h = 2.5,col = 'blueviolet')
+abline(h = -2.5,col = 'blueviolet')
+
+
+# Q-Q plot
+qqnorm(stud_ED,pch = 16);abline(0,1, col="red")
+
+# VIF
+vif_ED = vif(mdl_ED)
+vif_ED
+
 ```
 
 ```{r ED_scatterplots}
@@ -764,4 +768,26 @@ plot(data_allgroups$PBSteaS,data_allgroups$DERaToS,
      pch=19)
 ```
 
+```{code_dump}
+### Read in SPSS file of Sleep Study Data
+## Item-level data SPSS files
+# data_p = read_sav("T5 Parent Raw and Scored_5.12.2020.sav")
+# data_a = read_sav("T5 Adolescent Raw and Scored_6.11.2020.sav")
 
+### Converting .sav files to .csv
+## Converting parent and adolescent item-level files
+# data_item_parent = write_csv(
+#   data_p,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_parent.csv"
+#   )
+# data_item_adolescent = write_csv(
+#   data_a,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\data_item_adolescent.csv"
+#   )
+## Converting T5 data, full dataset
+# data_sav = read_sav("C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\T5 Sleep Study Dataset.sav")
+# data_csv = write_csv(
+#   data_sav,
+#   path="C:\\Users\\phams\\OneDrive\\Documents\\stat5214g\\data\\sleep_study\\t5_data.csv"
+#   )
+```
