@@ -16,7 +16,8 @@ library(MASS)
 #######################################################
 
 # Bring in the "tvmarketing.csv" data
-salary <- read.csv(file = "data/salary.csv")
+setwd("C://Users//phams/OneDrive//Documents//stat5214g")
+salary <- read.csv(file = "data//salary.csv")
 ```
 
 Problem 1: A researcher in a scientific foundation wished to evaluate the relation between intermediate and
@@ -41,6 +42,7 @@ confint(salary_fit,level=0.95)
 ```{r 15}
 late_math = data.frame(Quality=5.4, Experience=17, Publication=6.0)
 late_math$Salary = predict(salary_fit, newdata = late_math)
+
 
 ```
 

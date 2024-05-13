@@ -36,7 +36,7 @@ jet_fit = lm(thrust ~ primary + secondary + fuel + press + exhaust + ambient, da
 summary(jet_fit)
 ```
 
-Question 1: Fit the full model. Wha tis the R-squared value?
+Question 1: Fit the full model. What is the R-squared value?
 Question 2: Fit the full model. What is the R-squared adj. value? 
 Question 3: Fit the full model. What is the overall F-statistic.
 Question 4: Calculate VIF values for this full regression. What is the highest VIF value? Round to 2 decimal places.

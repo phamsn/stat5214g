@@ -253,5 +253,8 @@ vif_sbp_noHIP
 
 
 ```{r model}
+all_models = ols_step_all_possible(sbp_noHIP)
+all_models
+
 
 ```

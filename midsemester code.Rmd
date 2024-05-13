@@ -298,6 +298,7 @@ abline(h = 0,col = 'violet')
 abline(h = 2.5,col = 'blueviolet')
 abline(h = -2.5,col = 'blueviolet')
 ```
+
 ```{r 3}
 
 #Q-Q Plot

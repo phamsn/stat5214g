@@ -16,7 +16,7 @@ library(MASS)
 
 #######################################################
 
-# Bring in the "tvmarketing.csv" data
+# Bring in the "mileage" data
 setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
 mileage <- read.csv(file = "data/4_mileage.csv")
 ```

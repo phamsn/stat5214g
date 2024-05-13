@@ -10,13 +10,46 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(MASS)
-library()
+library(olsrr)
+library(car)
 
 
 #######################################################
 
 # Bring in the "salary.csv" data
-setwd("C:/Users/phams/OneDrive/Documents/stat5214g")
-data <- read.csv(file = "data/2_salary.csv")
+setwd("C://Users//phams/OneDrive//Documents//stat5214g")
+data <- read.csv(file = "data//2_salary.csv")
 ```
+
+Question 1:
+```{r 1}
+
+salary = lm(Salary ~ Quality + Experience + Publication, data = data)
+
+# Forward selection
+salary_forward = ols_step_forward_p(salary,penter=0.85)
+ols_step_forward_aic(salary)
+
+# All possible models
+salary_allmodels = ols_step_all_possible(salary)
+
+```
+
+Question 11:
+```{r 11}
+cooks.distance(salary)
+
+```
+Question 10: Rule of Thumb
+```{r 10}
+p = 3; n = 24;
+cutoff = (2*p)/n
+```
+
+Question 12: VIF values
+```{r 12}
+salary_vif = vif(salary)
+salary_vif
+```
+
 
